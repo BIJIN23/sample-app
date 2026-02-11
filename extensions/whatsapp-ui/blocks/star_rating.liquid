@@ -1,0 +1,137 @@
+{% comment %} WhatsApp UI App Embed {% endcomment %}
+
+<div id="wa-ui-root"
+  data-enabled="true"
+  data-phone="{{ block.settings.phone }}"
+  data-message="{{ block.settings.default_message | escape }}">
+</div>
+
+<button id="wa-fab" aria-label="WhatsApp chat">
+  <span>💬</span>
+</button>
+
+<div id="wa-overlay" hidden></div>
+
+<div id="wa-modal" hidden>
+  <div id="wa-modal-header">
+    <div>
+      <div id="wa-title">{{ block.settings.title }}</div>
+      <div id="wa-subtitle">{{ block.settings.subtitle }}</div>
+    </div>
+    <button id="wa-close" aria-label="Close">✕</button>
+  </div>
+
+  <div id="wa-body">
+    <div id="wa-agent">
+      <div id="wa-avatar"></div>
+      <div>
+        <div id="wa-agent-name">{{ block.settings.agent_name }}</div>
+        <div id="wa-agent-status">{{ block.settings.agent_status }}</div>
+      </div>
+    </div>
+
+    <label id="wa-label">{{ block.settings.input_label }}</label>
+    <textarea id="wa-input" rows="3" placeholder="{{ block.settings.placeholder }}"></textarea>
+
+    <button id="wa-send">
+      {{ block.settings.button_label }}
+    </button>
+  </div>
+</div>
+
+<style>
+  #wa-fab{
+    position:fixed; right:18px; bottom:18px; z-index:9999;
+    width:56px; height:56px; border-radius:999px; border:0; cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+    font-size:20px;
+  }
+
+  #wa-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9998;
+  }
+
+  #wa-modal{
+    position:fixed; right:18px; bottom:86px; z-index:9999;
+    width:min(360px, calc(100vw - 36px));
+    background:#fff; border-radius:16px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.22);
+  }
+
+  #wa-modal-header{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:12px; padding:14px 14px;
+  }
+
+  #wa-title{ font-weight:700; font-size:16px; }
+  #wa-subtitle{ font-size:13px; opacity:.75; margin-top:2px; }
+
+  #wa-close{ border:0; background:transparent; cursor:pointer; font-size:18px; }
+
+  #wa-body{ padding:14px; display:grid; gap:12px; }
+  #wa-agent{ display:flex; gap:10px; align-items:center; }
+  #wa-avatar{ width:38px; height:38px; border-radius:999px; background:#eaeaea; }
+  #wa-agent-name{ font-weight:600; font-size:14px; }
+  #wa-agent-status{ font-size:12px; opacity:.7; }
+
+  #wa-label{ font-size:12px; opacity:.8; }
+  #wa-input{
+    width:100%; border-radius:12px; border:1px solid #ddd;
+    padding:10px; resize:none; font-size:14px;
+  }
+  #wa-send{
+    width:100%; border:0; border-radius:12px; padding:10px 12px;
+    cursor:pointer; font-weight:600;
+  }
+</style>
+
+<script>
+(function(){
+  const fab = document.getElementById('wa-fab');
+  const modal = document.getElementById('wa-modal');
+  const overlay = document.getElementById('wa-overlay');
+  const closeBtn = document.getElementById('wa-close');
+  const sendBtn = document.getElementById('wa-send');
+  const input = document.getElementById('wa-input');
+  const root = document.getElementById('wa-ui-root');
+
+  function open(){
+    overlay.hidden = false;
+    modal.hidden = false;
+  }
+  function close(){
+    overlay.hidden = true;
+    modal.hidden = true;
+  }
+
+  fab && fab.addEventListener('click', open);
+  overlay && overlay.addEventListener('click', close);
+  closeBtn && closeBtn.addEventListener('click', close);
+
+  sendBtn && sendBtn.addEventListener('click', function(){
+    // UI-only for now (no redirect). Later we can build the WhatsApp deep link.
+    close();
+  });
+
+  // Optional: auto-open
+  // setTimeout(open, 800);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "WhatsApp UI (Embed)",
+  "target": "body",
+  "settings": [
+    { "type": "text", "id": "phone", "label": "WhatsApp phone (E.164)", "default": "+911234567890" },
+    { "type": "text", "id": "title", "label": "Popup title", "default": "Chat on WhatsApp" },
+    { "type": "text", "id": "subtitle", "label": "Popup subtitle", "default": "We typically reply within minutes" },
+    { "type": "text", "id": "agent_name", "label": "Agent name", "default": "Support" },
+    { "type": "text", "id": "agent_status", "label": "Agent status", "default": "Online" },
+    { "type": "text", "id": "input_label", "label": "Message label", "default": "Your message" },
+    { "type": "text", "id": "placeholder", "label": "Message placeholder", "default": "Hi! I need help with..." },
+    { "type": "textarea", "id": "default_message", "label": "Default message", "default": "Hi! I have a question." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Start chat" }
+  ]
+}
+{% endschema %}
