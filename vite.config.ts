@@ -15,8 +15,11 @@ if (
   delete process.env.HOST;
 }
 
-const host = new URL(process.env.SHOPIFY_APP_URL || "http://localhost")
-  .hostname;
+const isProduction = process.env.NODE_ENV === "production";
+
+const host = isProduction
+  ? "0.0.0.0"
+  : new URL(process.env.SHOPIFY_APP_URL || "http://localhost").hostname;
 
 let hmrConfig;
 if (host === "localhost") {
@@ -37,21 +40,18 @@ if (host === "localhost") {
 
 export default defineConfig({
   server: {
-    allowedHosts: [host],
+    host: "0.0.0.0", // IMPORTANT
+    allowedHosts: true, // allow Render domain
     cors: {
       preflightContinue: true,
     },
     port: Number(process.env.PORT || 3000),
     hmr: hmrConfig,
     fs: {
-      // See https://vitejs.dev/config/server-options.html#server-fs-allow for more information
       allow: ["app", "node_modules"],
     },
   },
-  plugins: [
-    reactRouter(),
-    tsconfigPaths(),
-  ],
+  plugins: [reactRouter(), tsconfigPaths()],
   build: {
     assetsInlineLimit: 0,
   },
