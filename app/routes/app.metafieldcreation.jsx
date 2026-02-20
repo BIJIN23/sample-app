@@ -2,9 +2,12 @@ import db from "../db.server";
 import { authenticate } from "../shopify.server";
 import { useFetcher } from "react-router";
 import { useLoaderData } from "react-router";
+import { requirePaidPlan } from "../utils/requirePlan.server";
 
 export async function loader({ request }) {
+  const { subscription } = await requirePaidPlan(request);
   const { session } = await authenticate.admin(request);
+
   const shop = session.shop;
 
   const metafields = await db.metafieldDefinition.findMany({
@@ -12,10 +15,11 @@ export async function loader({ request }) {
     orderBy: { createdAt: "desc" },
   });
 
-  return { metafields };
+  return { metafields, subscription };
 }
 
 export async function action({ request }) {
+  await requirePaidPlan(request);
   const formData = await request.formData();
 
   const key = formData.get("key")?.toString().trim();

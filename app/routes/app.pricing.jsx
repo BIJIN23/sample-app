@@ -13,6 +13,7 @@ import {
 import { useLoaderData } from "react-router";
 import { authenticate, MONTHLY_PLAN, ANNUAL_PLAN } from "../shopify.server";
 import { CheckSmallIcon } from "@shopify/polaris-icons";
+import { useLocation } from "react-router";
 
 export async function loader({ request }) {
   const { billing } = await authenticate.admin(request);
@@ -68,6 +69,7 @@ const planData = [
 
 export default function PricingPage() {
   const { plan } = useLoaderData();
+  const location = useLocation();
 
   return (
     <Page>
@@ -78,7 +80,7 @@ export default function PricingPage() {
         illustration="https://cdn.shopify.com/s/files/1/0583/6465/7734/files/tag.png?v=1705280535"
         primaryAction={{
           content: "Cancel Plan",
-          url: "/app/cancel",
+          url: `/app/cancel${location.search}`,
         }}
       >
         {plan.name === "Monthly subscription" ? (
@@ -146,7 +148,7 @@ export default function PricingPage() {
 
                 {plan_item.name === "Monthly subscription" ? (
                   plan.name !== "Monthly subscription" ? (
-                    <Button primary url={plan_item.url}>
+                    <Button primary url={`${plan_item.url}${location.search}`}>
                       {plan_item.action}
                     </Button>
                   ) : (
